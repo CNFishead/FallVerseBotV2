@@ -5,12 +5,17 @@ using System.ComponentModel.DataAnnotations.Schema;
 public class UserRecord
 {
     [Key]
-    // auto-incrementing primary key
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public long Id { get; set; }
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)] // Auto-incrementing PK
+    public int Id { get; set; }
+
     [Required]
-    public ulong DiscordId { get; set; }
+    public ulong DiscordId { get; set; } // Unique Discord user ID
+
     [Required]
     public string Username { get; set; }
-    public DateTime JoinedAt { get; set; } = DateTime.UtcNow; // sets the joined at time to the current time
+
+    public DateTime JoinedAt { get; set; } = DateTime.UtcNow; // Default to now
+
+    // 🔹 Navigation property for one-to-one relationship
+    public virtual UserEconomy? Economy { get; set; }
 }

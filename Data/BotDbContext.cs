@@ -10,9 +10,9 @@ public class BotDbContext : DbContext
   protected override void OnModelCreating(ModelBuilder modelBuilder)
   {
     modelBuilder.Entity<UserEconomy>()
-        .HasOne<UserRecord>()
-        .WithOne()
-        .HasForeignKey<UserEconomy>(e => e.UserId)
-        .OnDelete(DeleteBehavior.Cascade);
+            .HasOne(e => e.User)
+            .WithOne(u => u.Economy) // Establish 1-to-1 relationship
+            .HasForeignKey<UserEconomy>(e => e.UserId)
+            .IsRequired();
   }
 }

@@ -23,8 +23,8 @@ namespace FallVerseBotV2.Migrations
 
             modelBuilder.Entity("UserEconomy", b =>
                 {
-                    b.Property<long>("UserId")
-                        .HasColumnType("bigint");
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
 
                     b.Property<int>("CurrencyAmount")
                         .HasColumnType("integer");
@@ -35,23 +35,18 @@ namespace FallVerseBotV2.Migrations
                     b.Property<int>("StreakCount")
                         .HasColumnType("integer");
 
-                    b.Property<long>("UserId1")
-                        .HasColumnType("bigint");
-
                     b.HasKey("UserId");
-
-                    b.HasIndex("UserId1");
 
                     b.ToTable("UserEconomy");
                 });
 
             modelBuilder.Entity("UserRecord", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<decimal>("DiscordId")
                         .HasColumnType("numeric(20,0)");
@@ -70,19 +65,18 @@ namespace FallVerseBotV2.Migrations
 
             modelBuilder.Entity("UserEconomy", b =>
                 {
-                    b.HasOne("UserRecord", null)
-                        .WithOne()
+                    b.HasOne("UserRecord", "User")
+                        .WithOne("Economy")
                         .HasForeignKey("UserEconomy", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("UserRecord", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId1")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("UserRecord", b =>
+                {
+                    b.Navigation("Economy");
                 });
 #pragma warning restore 612, 618
         }

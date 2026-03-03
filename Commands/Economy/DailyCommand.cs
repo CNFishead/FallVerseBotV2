@@ -6,6 +6,8 @@ namespace FallVerseBotV2.Commands.Economy
 {
   public class DailyCommand : BaseEconomyModule
   {
+    private static readonly Random _rng = new();
+
     public DailyCommand(ILogger<BaseEconomyModule> logger, BotDbContext db) : base(logger, db) { }
 
     [SlashCommand("daily", "Claim your daily reward!")]
@@ -26,7 +28,7 @@ namespace FallVerseBotV2.Commands.Economy
             .Include(s => s.DailyCurrency)
             .FirstOrDefaultAsync(s => s.GuildId == guildId);
 
-        if (settings == null)
+        if (settings is null)
         {
           await FollowupAsync("❌ This server has not set a daily currency yet. Use `/setdailycurrency` first.");
           return;
@@ -63,7 +65,8 @@ namespace FallVerseBotV2.Commands.Economy
 
         // Step 3: Check if already claimed today
         var now = DateTime.UtcNow;
-        if (userEconomy.LastClaimed.HasValue && userEconomy.LastClaimed.Value.Date == now.Date)
+        // pattern-match null and compare date in one go
+        if (userEconomy.LastClaimed?.Date == now.Date)
         {
           Logger.LogInformation($"User {username} ({discordId}) has already claimed daily today.");
 
@@ -77,23 +80,19 @@ namespace FallVerseBotV2.Commands.Economy
 
 
         int? daysSinceLastClaim = userEconomy.LastClaimed.HasValue
-    ? (now.Date - userEconomy.LastClaimed.Value.Date).Days
-    : (int?)null;
+            ? (now.Date - userEconomy.LastClaimed.Value.Date).Days
+            : (int?)null;
 
-        if (daysSinceLastClaim == 1)
-        {
-          userEconomy.StreakCount += 1;
-        }
-        else
-        {
-          userEconomy.StreakCount = 1;
-        }
+        // increment or reset streak in a single expression
+        userEconomy.StreakCount = daysSinceLastClaim == 1
+            ? userEconomy.StreakCount + 1
+            : 1;
 
 
         // Step 5: Calculate reward
         int baseAmount = 25;
         double streakMultiplier = GetStreakMultiplier(userEconomy.StreakCount);
-        double bonusMultiplier = 1 + (new Random().NextDouble() * 0.2);
+        double bonusMultiplier = 1 + (_rng.NextDouble() * 0.2);
         int reward = (int)(baseAmount * streakMultiplier * bonusMultiplier);
 
         // Step 6: Get/create balance for user + currency + guild
@@ -143,19 +142,28 @@ namespace FallVerseBotV2.Commands.Economy
       }
     }
 
+    /// <summary>
+    /// Calculates a multiplier based on the current streak length.
+    /// The multiplier grows logarithmically with the streak, scaled by
+    /// 0.6 and capped at 5.0 to prevent runaway rewards.
+    /// </summary>
+    /// <param name="streak">The number of consecutive days the user has claimed.</param>
+    /// <returns>A value between 1.0 and 5.0 used to scale the base reward.</returns>
     private double GetStreakMultiplier(int streak)
     {
       return Math.Min(1.0 + Math.Log10(streak + 1) * 0.6, 5.0);
     }
-    private string GetStreakLabel(int streak)
+    private static string GetStreakLabel(int streak) => streak switch
     {
-      if (streak >= 365) return "🔥 Eternal";
-      if (streak >= 180) return "💎 Legendary";
-      if (streak >= 90) return "🌟 Veteran";
-      if (streak >= 30) return "💪 Committed";
-      if (streak >= 7) return "📈 Consistent";
-      return "🌱 Getting Started";
-    }
+        >= 1500 => "♾️ Infinite",
+        >= 750  => "👑 Immortal",
+        >= 365  => "🔥 Eternal",
+        >= 180  => "💎 Legendary",
+        >= 90   => "🌟 Veteran",
+        >= 30   => "💪 Committed",
+        >= 7    => "📈 Consistent",
+        _       => "🌱 Getting Started",
+    };
 
   }
 

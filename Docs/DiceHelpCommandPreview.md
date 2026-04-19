@@ -78,21 +78,4 @@ Separate with ; | Add labels with "quotes"
 /roll 8d6 "fireball damage"
 ```
 
-_💡 Tip: The bot automatically detects when to use advanced features based on your expression!_
-
-## Features
-
-- 🎨 **Rich Embed Design**: Beautiful, organized presentation
-- 📱 **Mobile Friendly**: Looks great on all devices
-- 🔍 **Comprehensive**: Covers all features with examples
-- 💡 **Educational**: Real-world use cases and tips
-- 🎯 **Interactive**: Users can copy-paste examples directly
-- ⏰ **Timestamped**: Shows when the help was accessed
-
-## Benefits
-
-1. **Reduces Support Questions**: Users can self-serve help
-2. **Increases Feature Discovery**: Users learn about advanced features
-3. **Improves User Experience**: Visual, easy-to-understand format
-4. **Encourages Usage**: Real examples show practical applications
-5. **Professional Appearance**: Discord embed styling looks polished
+_💡 Tip: The bot automatically detects when to use advanced features based on your expression
